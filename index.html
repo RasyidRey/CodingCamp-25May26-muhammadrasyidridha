@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense &amp; Budget Visualizer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-light">
+    <header role="banner">
+        <h1>Expense &amp; Budget Visualizer</h1>
+        <button id="theme-toggle" type="button" aria-label="Switch to dark theme" title="Toggle theme">
+            🌙 Dark Mode
+        </button>
+    </header>
+
+    <main role="main">
+        <!-- Balance Display Section -->
+        <section id="balance-section" aria-label="Total expenses balance">
+            <div id="balance-display" role="status" aria-live="polite" aria-atomic="true">
+                <span class="balance-label">Total Expenses:</span>
+                <span id="balance-amount" class="balance-amount">$0.00</span>
+            </div>
+            <div id="budget-warning" class="budget-warning hidden" role="alert" aria-live="assertive">
+                ⚠️ You have exceeded your budget limit!
+            </div>
+        </section>
+
+        <!-- Budget Input Section -->
+        <section id="budget-section" aria-label="Budget limit settings">
+            <h2>Budget Limit</h2>
+            <div class="budget-controls">
+                <label for="budget-input">Set Budget Limit ($):</label>
+                <input
+                    type="number"
+                    id="budget-input"
+                    min="0.01"
+                    max="999999999.99"
+                    step="0.01"
+                    placeholder="Enter budget limit"
+                    aria-describedby="budget-error"
+                >
+                <button id="budget-set-btn" type="button" aria-label="Set budget limit">Set</button>
+                <button id="budget-clear-btn" type="button" aria-label="Clear budget limit">Clear</button>
+                <span id="budget-error" class="error-message" role="alert" aria-live="polite"></span>
+            </div>
+        </section>
+
+        <!-- Input Form Section -->
+        <section id="input-section" aria-label="Add new expense">
+            <h2>Add Expense</h2>
+            <form id="expense-form" aria-label="Expense input form" novalidate>
+                <div class="form-group">
+                    <label for="item-name">Item Name:</label>
+                    <input
+                        type="text"
+                        id="item-name"
+                        maxlength="50"
+                        placeholder="Enter item name"
+                        required
+                        aria-describedby="item-name-error"
+                        aria-required="true"
+                    >
+                    <span id="item-name-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="item-amount">Amount ($):</label>
+                    <input
+                        type="number"
+                        id="item-amount"
+                        min="0.01"
+                        max="9999999.99"
+                        step="0.01"
+                        placeholder="0.00"
+                        required
+                        aria-describedby="item-amount-error"
+                        aria-required="true"
+                    >
+                    <span id="item-amount-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="category-select">Category:</label>
+                    <select id="category-select" required aria-describedby="category-error" aria-required="true">
+                        <option value="">-- Select Category --</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Fun">Fun</option>
+                    </select>
+                    <span id="category-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+
+                <button type="submit" id="add-expense-btn" aria-label="Add expense transaction">Add Expense</button>
+            </form>
+        </section>
+
+        <!-- Custom Category Section -->
+        <section id="custom-category-section" aria-label="Add custom category">
+            <h2>Custom Categories</h2>
+            <div class="custom-category-controls">
+                <label for="custom-category-input">New Category Name:</label>
+                <input
+                    type="text"
+                    id="custom-category-input"
+                    maxlength="30"
+                    placeholder="Enter category name"
+                    aria-describedby="custom-category-error"
+                >
+                <button id="add-category-btn" type="button" aria-label="Add custom category">Add Category</button>
+                <span id="custom-category-error" class="error-message" role="alert" aria-live="polite"></span>
+            </div>
+        </section>
+
+        <!-- Pie Chart Section -->
+        <section id="chart-section" aria-label="Expense distribution chart">
+            <h2>Expense Distribution</h2>
+            <div id="chart-container">
+                <canvas id="expense-chart" aria-label="Pie chart showing expense distribution by category" role="img"></canvas>
+                <p id="chart-unavailable" class="chart-fallback hidden" role="status">
+                    Chart unavailable. Chart.js could not be loaded.
+                </p>
+            </div>
+        </section>
+
+        <!-- Transaction List Section -->
+        <section id="transaction-section" aria-label="Transaction list">
+            <h2>Transactions</h2>
+
+            <!-- Sort and Filter Controls -->
+            <div class="list-controls" aria-label="Transaction list controls">
+                <div class="sort-control">
+                    <label for="sort-select">Sort by:</label>
+                    <select id="sort-select" aria-label="Sort transactions">
+                        <option value="default">Default (Most Recent)</option>
+                        <option value="amount-desc">Amount (High→Low)</option>
+                        <option value="amount-asc">Amount (Low→High)</option>
+                        <option value="category-asc">Category (A→Z)</option>
+                    </select>
+                </div>
+
+                <div class="month-filter-control">
+                    <label for="month-filter">Filter by Month:</label>
+                    <select id="month-filter" aria-label="Filter transactions by month">
+                        <option value="">All Months</option>
+                    </select>
+                    <button id="clear-filter-btn" type="button" aria-label="Clear month filter">Clear Filter</button>
+                    <span id="monthly-total" class="monthly-total" role="status" aria-live="polite" style="display:none;"></span>
+                </div>
+            </div>
+
+            <!-- Transaction List Container -->
+            <div id="transaction-list" class="transaction-list" role="list" aria-label="List of expense transactions" aria-live="polite">
+                <p id="empty-state" class="empty-state">No transactions recorded yet.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer role="contentinfo">
+        <p>&copy; 2025 Expense &amp; Budget Visualizer</p>
+    </footer>
+
+    <!-- Chart.js CDN with fallback handling -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer
+        onerror="document.getElementById('expense-chart').style.display='none';document.getElementById('chart-unavailable').classList.remove('hidden');">
+    </script>
+    <script src="js/app.js" defer></script>
+</body>
+</html>
